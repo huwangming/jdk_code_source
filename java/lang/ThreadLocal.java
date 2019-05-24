@@ -295,6 +295,9 @@ public class ThreadLocal<T> {
      * used, stale entries are guaranteed to be removed only when
      * the table starts running out of space.
      */
+
+    // 这才是实际关注类，定义为内部类有点迷惑，个人觉得单独定义此类文件较好（两者交叉很多）
+    // 而ThreadLocal类 可以狭义理解为一个为线程方便设置私有变量ThreadLocalMap的工具类
     static class ThreadLocalMap {
 
         /**
@@ -305,10 +308,13 @@ public class ThreadLocal<T> {
          * entry can be expunged from table.  Such entries are referred to
          * as "stale entries" in the code that follows.
          */
+
+        // 整个对象持有ThreadLocal对象的弱引用
+        // 如果ThreadLocal对象是在线程生命周期内创建（new）,不具有其他强应用，GC时会清除
         static class Entry extends WeakReference<ThreadLocal<?>> {
             /** The value associated with this ThreadLocal. */
             Object value;
-
+            // 相当于一个Map，key是ThreadLocal本身，value就是我们的值。
             Entry(ThreadLocal<?> k, Object v) {
                 super(k);
                 value = v;
@@ -324,6 +330,8 @@ public class ThreadLocal<T> {
          * The table, resized as necessary.
          * table.length MUST always be a power of two.
          */
+        // 和HashMap底层结构相似，上层都是数组，不同在于数组元素Entry是ThreadLocal对象的弱引用
+        // key 是不同ThreadLocal实例, 即每个线程可以与多个threadLocal 绑定
         private Entry[] table;
 
         /**
@@ -384,11 +392,13 @@ public class ThreadLocal<T> {
 
             for (int j = 0; j < len; j++) {
                 Entry e = parentTable[j];
+                // 值传递，浅copy
                 if (e != null) {
                     @SuppressWarnings("unchecked")
                     ThreadLocal<Object> key = (ThreadLocal<Object>) e.get();
                     if (key != null) {
                         Object value = key.childValue(e.value);
+                        // Entry中的值浅copy, key-ThreadLocal 还是之前的
                         Entry c = new Entry(key, value);
                         int h = key.threadLocalHashCode & (len - 1);
                         while (table[h] != null)
@@ -410,6 +420,8 @@ public class ThreadLocal<T> {
          * @param  key the thread local object
          * @return the entry associated with key, or null if no such
          */
+
+        // key 是ThreadLocal不同实例
         private Entry getEntry(ThreadLocal<?> key) {
             int i = key.threadLocalHashCode & (table.length - 1);
             Entry e = table[i];

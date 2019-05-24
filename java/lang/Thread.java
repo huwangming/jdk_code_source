@@ -179,12 +179,17 @@ class Thread implements Runnable {
 
     /* ThreadLocal values pertaining to this thread. This map is maintained
      * by the ThreadLocal class. */
+    /* ThreadLocalMap对象 才是线程真正的拥有的成员变量*/
+    // 打个比方，每个线程都有其固有属性，如名字-name、父母-group
+    // 而threadLocals 是外界给其的标签，具有不确定性
     ThreadLocal.ThreadLocalMap threadLocals = null;
 
     /*
      * InheritableThreadLocal values pertaining to this thread. This map is
      * maintained by the InheritableThreadLocal class.
      */
+    // 父子线程传递
+    // InheritableThreadLocal对象 getMap 是拿的这个变量值
     ThreadLocal.ThreadLocalMap inheritableThreadLocals = null;
 
     /*
@@ -415,6 +420,8 @@ class Thread implements Runnable {
                 acc != null ? acc : AccessController.getContext();
         this.target = target;
         setPriority(priority);
+        // 把父线程的 inheritableThreadLocals 的值给复制到新线程中的inheritableThreadLocals中来
+        // 值传递，浅copy
         if (inheritThreadLocals && parent.inheritableThreadLocals != null)
             this.inheritableThreadLocals =
                 ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
