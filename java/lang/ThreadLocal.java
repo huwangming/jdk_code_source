@@ -392,7 +392,7 @@ public class ThreadLocal<T> {
 
             for (int j = 0; j < len; j++) {
                 Entry e = parentTable[j];
-                // 值传递，浅copy
+                // 值传递，浅copy，key和value都是原来的引用地址。
                 if (e != null) {
                     @SuppressWarnings("unchecked")
                     ThreadLocal<Object> key = (ThreadLocal<Object>) e.get();

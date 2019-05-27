@@ -378,21 +378,41 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * that workerCount is 0 (which sometimes entails a recheck -- see
      * below).
      */
+    // 初始值111-000...000(29个0)，运行状态，0个工作线程
     private final AtomicInteger ctl = new AtomicInteger(ctlOf(RUNNING, 0));
+
+    // Integer 32位，用左边3位表示线程池状态，最右边29位表示工作线程数
     private static final int COUNT_BITS = Integer.SIZE - 3;
+
+    // 类似子网掩码,进行与运算
+    // 000-111...111(29个1)
     private static final int CAPACITY   = (1 << COUNT_BITS) - 1;
 
     // runState is stored in the high-order bits
+
+    // 111-000...000(29个0)
     private static final int RUNNING    = -1 << COUNT_BITS;
+    // 000-000...000(29个0)
     private static final int SHUTDOWN   =  0 << COUNT_BITS;
+    // 001-000...000(29个0)
     private static final int STOP       =  1 << COUNT_BITS;
+    // 010-000...000(29个0)
     private static final int TIDYING    =  2 << COUNT_BITS;
+    // 011-000...000(29个0)
     private static final int TERMINATED =  3 << COUNT_BITS;
 
     // Packing and unpacking ctl
-    private static int runStateOf(int c)     { return c & ~CAPACITY; }
-    private static int workerCountOf(int c)  { return c & CAPACITY; }
-    private static int ctlOf(int rs, int wc) { return rs | wc; }
+
+    //与运算，得到前3位-表示线程池状态, 最后会与上面RUNNING等几个状态码比较
+    private static int runStateOf(int c)     { return c & ~CAPACITY; } // 初始值为RUNNING,后29位一定是0
+
+    // 与运算，得到后29位数-表示工作线程数
+    private static int workerCountOf(int c)  { return c & CAPACITY; } //初始值ctl&CAPACITY=000-000...000(29个),ctl增加X后，与结果值为X，这个方法正好表示了工作线程数
+
+    private static int ctlOf(int rs, int wc) {
+        // 按位或运算,只要有一个为1，其值为1
+        return rs | wc;
+    }
 
     /*
      * Bit field accessors that don't require unpacking ctl.
@@ -616,11 +636,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         Worker(Runnable firstTask) {
             setState(-1); // inhibit interrupts until runWorker
             this.firstTask = firstTask;
+            // new一个线程
             this.thread = getThreadFactory().newThread(this);
         }
 
         /** Delegates main run loop to outer runWorker  */
         public void run() {
+            // 关键方法
             runWorker(this);
         }
 
@@ -900,7 +922,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      */
     private boolean addWorker(Runnable firstTask, boolean core) {
         retry:
-        for (;;) {
+            for (;;) {
             int c = ctl.get();
             int rs = runStateOf(c);
 
@@ -913,9 +935,12 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
 
             for (;;) {
                 int wc = workerCountOf(c);
+                // 工作线程不能大于(1<<29)-1=2的29次方
+                // core-true-核心数，core-false-最大数
                 if (wc >= CAPACITY ||
                     wc >= (core ? corePoolSize : maximumPoolSize))
                     return false;
+                // 当前活动线程数+1
                 if (compareAndIncrementWorkerCount(c))
                     break retry;
                 c = ctl.get();  // Re-read ctl
@@ -929,10 +954,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         boolean workerAdded = false;
         Worker w = null;
         try {
+            // 创建工作线程
             w = new Worker(firstTask);
+            // 拿到实际执行Runnable-firstTask的线程
             final Thread t = w.thread;
             if (t != null) {
                 final ReentrantLock mainLock = this.mainLock;
+                // 加锁目的？？
                 mainLock.lock();
                 try {
                     // Recheck while holding lock.
@@ -954,12 +982,14 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     mainLock.unlock();
                 }
                 if (workerAdded) {
+                    // 线程执行，最关键地方
                     t.start();
                     workerStarted = true;
                 }
             }
         } finally {
             if (! workerStarted)
+                // 回滚-1
                 addWorkerFailed(w);
         }
         return workerStarted;
@@ -1143,7 +1173,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     !wt.isInterrupted())
                     wt.interrupt();
                 try {
-                    beforeExecute(wt, task);
+                    beforeExecute(wt, task); // 钩子方法before
                     Throwable thrown = null;
                     try {
                         task.run();
@@ -1154,7 +1184,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
                     } catch (Throwable x) {
                         thrown = x; throw new Error(x);
                     } finally {
-                        afterExecute(task, thrown);
+                        afterExecute(task, thrown); // 钩子方法after
                     }
                 } finally {
                     task = null;
@@ -1363,11 +1393,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * and so reject the task.
          */
         int c = ctl.get();
-        if (workerCountOf(c) < corePoolSize) {
+        // 判断核心线程数是否已满
+        if (workerCountOf(c) < corePoolSize) { // workerCountOf(c)初时计算结果为0
             if (addWorker(command, true))
                 return;
             c = ctl.get();
         }
+        // 判断任务队列是否已满
         if (isRunning(c) && workQueue.offer(command)) {
             int recheck = ctl.get();
             if (! isRunning(recheck) && remove(command))
@@ -1375,9 +1407,13 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             else if (workerCountOf(recheck) == 0)
                 addWorker(null, false);
         }
+        // 判断最大线程数是否已满
         else if (!addWorker(command, false))
-            reject(command);
+            reject(command); //以上三种情况都满了，执行拒绝策略
+
+        // 上面有三次调用addWorker,但参数不同
     }
+
 
     /**
      * Initiates an orderly shutdown in which previously submitted
