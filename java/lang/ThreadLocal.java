@@ -297,7 +297,10 @@ public class ThreadLocal<T> {
      */
 
     // 这才是实际关注类，定义为内部类有点迷惑，个人觉得单独定义此类文件较好（两者交叉很多）
-    // 而ThreadLocal类 可以狭义理解为一个为线程方便设置私有变量ThreadLocalMap的工具类
+
+    // 而ThreadLocal类 可以狭义理解为:一个为线程方便设置私有变量（ThreadLocalMap-threadLocals）的工具类
+    // 需要在多个线程之间共享有状态对象，那么就只能使用synchronized、lock、CAS等这些实现线程同步的方法了
+
     static class ThreadLocalMap {
 
         /**
