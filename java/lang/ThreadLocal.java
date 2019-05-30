@@ -123,6 +123,7 @@ public class ThreadLocal<T> {
      *
      * @return the initial value for this thread-local
      */
+    // 建议在使用ThreadLocal时一开始就重写该函数
     protected T initialValue() {
         return null;
     }
@@ -152,7 +153,7 @@ public class ThreadLocal<T> {
      * Returns the value in the current thread's copy of this
      * thread-local variable.  If the variable has no value for the
      * current thread, it is first initialized to the value returned
-     * by an invocation of the {@link #initialValue} method.
+     * by an invocation of the {@link # initialValue} method.
      *
      * @return the current thread's value of this thread-local
      */
@@ -177,6 +178,7 @@ public class ThreadLocal<T> {
      * @return the initial value
      */
     private T setInitialValue() {
+        // 可以重写初始化方法
         T value = initialValue();
         Thread t = Thread.currentThread();
         ThreadLocalMap map = getMap(t);
@@ -298,8 +300,10 @@ public class ThreadLocal<T> {
 
     // 这才是实际关注类，定义为内部类有点迷惑，个人觉得单独定义此类文件较好（两者交叉很多）
 
-    // 而ThreadLocal类 可以狭义理解为:一个为线程方便设置私有变量（ThreadLocalMap-threadLocals）的工具类
-    // 需要在多个线程之间共享有状态对象，那么就只能使用synchronized、lock、CAS等这些实现线程同步的方法了
+    // 而ThreadLocal类 可以狭义理解为:一个为线程方便设置私有变量对象（ThreadLocalMap-threadLocals）的工具类；
+    // 从而这些变量对象可以在此线程执行逻辑中的所有方法中使用，不用显式传参。
+
+    // 而需要在多个线程之间共享有状态对象，那么就只能使用synchronized、lock、CAS等这些实现线程同步的方法了
 
     static class ThreadLocalMap {
 
@@ -335,6 +339,7 @@ public class ThreadLocal<T> {
          */
         // 和HashMap底层结构相似，上层都是数组，不同在于数组元素Entry是ThreadLocal对象的弱引用
         // key 是不同ThreadLocal实例, 即每个线程可以与多个threadLocal 绑定
+        // 采用线性探测法实现的HashMap
         private Entry[] table;
 
         /**
@@ -447,11 +452,13 @@ public class ThreadLocal<T> {
             Entry[] tab = table;
             int len = tab.length;
 
+            // 遍历清理key为null的Entry
             while (e != null) {
                 ThreadLocal<?> k = e.get();
                 if (k == key)
                     return e;
                 if (k == null)
+                    // ThreadLocal被设置为null后,会清理key为null的Entry
                     expungeStaleEntry(i);
                 else
                     i = nextIndex(i, len);
@@ -498,6 +505,19 @@ public class ThreadLocal<T> {
             if (!cleanSomeSlots(i, sz) && sz >= threshold)
                 rehash();
         }
+
+        /*
+        ---------------ThreadLocal中的内存泄漏原因--------------
+        如果ThreadLocal被设置为null后，而且没有任何强引用指向它，根据垃圾回收的可达性分析算法，ThreadLocal将会被回收。
+        这样一来，ThreadLocalMap中就会含有key为null的Entry，而且ThreadLocalMap是在Thread中的，只要线程迟迟不结束，这些无法访问到的value会形成内存泄漏。
+        为了解决这个问题，ThreadLocalMap中的getEntry()、set()和remove()函数都会清理key为null的Entry
+        ---------------ThreadLocalMap的key是一个弱引用原因--------------
+        ThreadLocal threadLocal = new ThreadLocal();
+        //进行一些逻辑后
+        threadLocal = null;
+        强引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的强引用，如果不手动删除，那么ThreadLocal将不会回收，产生内存泄漏。
+        弱引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的弱引用，即便不手动删除，ThreadLocal仍会被回收。
+        */
 
         /**
          * Remove the entry for key.
@@ -605,12 +625,12 @@ public class ThreadLocal<T> {
             Entry[] tab = table;
             int len = tab.length;
 
-            // expunge entry at staleSlot
+            // expunge entry at staleSlot -----删除entry
             tab[staleSlot].value = null;
             tab[staleSlot] = null;
             size--;
 
-            // Rehash until we encounter null
+            // Rehash until we encounter null -----重hash
             Entry e;
             int i;
             for (i = nextIndex(staleSlot, len);
