@@ -411,12 +411,21 @@ public class ArrayList<E> extends AbstractList<E>
     public <T> T[] toArray(T[] a) { //有具体的类型
         if (a.length < size)
             // Make a new array of a's runtime type, but my contents:
+            // 小于size,则new一个,引用变了
             return (T[]) Arrays.copyOf(elementData, size, a.getClass());
         System.arraycopy(elementData, 0, a, 0, size);
         if (a.length > size)
             a[size] = null;
         return a;
     }
+
+/*
+    // use demo
+    List<String> arrayList = new ArrayList(2);
+    arrayList.add("1");
+    arrayList.add("2");
+    String[] transform = arrayList.toArray(new String[arrayList.size()]);
+*/
 
     // Positional Access Operations
 

@@ -3798,8 +3798,8 @@ public class Arrays {
     @SuppressWarnings("varargs")
     public static <T> List<T> asList(T... a) {
         // 这是内部类的ArrayList
-        // 并没有实现集合的修改方法，只是体现的适配器模式，只是转换接口，后台其实还是数组，
-        // 对数据进行增删(add/remove)肯定是不行的,那么对单个元素的修改还是可以的
+        // 并没有实现集合的修改方法，只是体现的适配器模式，只是转换接口，后台还是（引用）原数组，
+        // 对数据进行增删(add/remove-调用的AbstractList)肯定是不行的,那么对单个元素的修改(set)还是可以的
         return new ArrayList<>(a);
     }
 
@@ -3810,9 +3810,11 @@ public class Arrays {
         implements RandomAccess, java.io.Serializable
     {
         private static final long serialVersionUID = -2764017481108945198L;
+        // final引用不能二次修改
         private final E[] a;
 
         ArrayList(E[] array) {
+            // 引用赋值
             a = Objects.requireNonNull(array);
         }
 
