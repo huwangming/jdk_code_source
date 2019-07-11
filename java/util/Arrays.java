@@ -3797,6 +3797,8 @@ public class Arrays {
     @SafeVarargs
     @SuppressWarnings("varargs")
     public static <T> List<T> asList(T... a) {
+        // 这是内部类的ArrayList
+        // size是固定大小的 即不能马上add 可以remove后再add
         return new ArrayList<>(a);
     }
 
