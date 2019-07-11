@@ -3798,7 +3798,8 @@ public class Arrays {
     @SuppressWarnings("varargs")
     public static <T> List<T> asList(T... a) {
         // 这是内部类的ArrayList
-        // size是固定大小的 即不能马上add 可以remove后再add
+        // 并没有实现集合的修改方法，只是体现的适配器模式，只是转换接口，后台其实还是数组，
+        // 对数据进行增删(add/remove)肯定是不行的,那么对单个元素的修改还是可以的
         return new ArrayList<>(a);
     }
 
