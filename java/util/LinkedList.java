@@ -565,13 +565,15 @@ public class LinkedList<E>
      */
     Node<E> node(int index) {
         // assert isElementIndex(index);
-
+        // 双链表的好处显现
         if (index < (size >> 1)) {
+            // 从前面检索
             Node<E> x = first;
             for (int i = 0; i < index; i++)
                 x = x.next;
             return x;
         } else {
+            // 从后面检索
             Node<E> x = last;
             for (int i = size - 1; i > index; i--)
                 x = x.prev;
@@ -692,6 +694,7 @@ public class LinkedList<E>
      * @return {@code true} (as specified by {@link Queue#offer})
      * @since 1.5
      */
+    // 同add
     public boolean offer(E e) {
         return add(e);
     }
