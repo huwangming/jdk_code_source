@@ -152,6 +152,7 @@ public interface Queue<E> extends Collection<E> {
      * @return {@code true} (as specified by {@link Collection#add})
      * @throws IllegalStateException if the element cannot be added at this
      *         time due to capacity restrictions
+     *         //  队列有大小限制，想在一个满的队列中加入一个新项,会抛异常，而offer只会返回false
      * @throws ClassCastException if the class of the specified element
      *         prevents it from being added to this queue
      * @throws NullPointerException if the specified element is null and
@@ -190,6 +191,7 @@ public interface Queue<E> extends Collection<E> {
      */
     E remove();
 
+    // remove和poll在队列为空时，返回值有区别，
     /**
      * Retrieves and removes the head of this queue,
      * or returns {@code null} if this queue is empty.
@@ -208,6 +210,7 @@ public interface Queue<E> extends Collection<E> {
      */
     E element();
 
+    // element() 和 peek() 用于在队列的头部查询元素。与 remove() 方法类似，在队列为空时， element() 抛出一个异常，而 peek() 返回 null。
     /**
      * Retrieves, but does not remove, the head of this queue,
      * or returns {@code null} if this queue is empty.
