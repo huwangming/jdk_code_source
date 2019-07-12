@@ -37,7 +37,7 @@ package java.util;
 
 /**
  * A linear collection that supports element insertion and removal at
- * both ends.  The name <i>deque</i> is short for "double ended queue"
+ * both ends.  The name <i>deque</i> is short for "double ended queue"   //名称deque 是“double ended queue（双端队列）”的缩写，通常读为“deck”。
  * and is usually pronounced "deck".  Most {@code Deque}
  * implementations place no fixed limits on the number of elements
  * they may contain, but this interface supports capacity-restricted
@@ -190,6 +190,10 @@ package java.util;
  * @since  1.6
  * @param <E> the type of elements held in this collection
  */
+
+// 此接口定义在双端队列两端访问元素的方法。
+// 提供插入、移除和检查元素的方法。
+// 每种方法都存在两种形式：一种形式在操作失败时抛出异常，另一种形式返回一个特殊值（null 或false，具体取决于操作）。
 public interface Deque<E> extends Queue<E> {
     /**
      * Inserts the specified element at the front of this deque if it is
@@ -296,7 +300,7 @@ public interface Deque<E> extends Queue<E> {
     E pollFirst();
 
     /**
-     * Retrieves and removes the last element of this deque,
+     * Retrieves(取回) and removes the last element of this deque,
      * or returns {@code null} if this deque is empty.
      *
      * @return the tail of this deque, or {@code null} if this deque is empty
@@ -379,6 +383,10 @@ public interface Deque<E> extends Queue<E> {
      * (<a href="Collection.html#optional-restrictions">optional</a>)
      */
     boolean removeLastOccurrence(Object o);
+
+    // 以上为两端操作的基本方法(增、删、查)
+    // 以下为单队列queue方法
+    // 两者结合可以实现后进先出的栈功能
 
     // *** Queue methods ***
 
@@ -515,6 +523,7 @@ public interface Deque<E> extends Queue<E> {
     E pop();
 
 
+    // 集合相关方法
     // *** Collection methods ***
 
     /**

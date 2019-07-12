@@ -218,4 +218,5 @@ public interface Queue<E> extends Collection<E> {
      * @return the head of this queue, or {@code null} if this queue is empty
      */
     E peek();
+    //窥见
 }
