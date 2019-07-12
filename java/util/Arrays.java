@@ -3803,6 +3803,8 @@ public class Arrays {
         return new ArrayList<>(a);
     }
 
+    //  List<String> list1 = new ArrayList<>(Arrays.asList("s1","s2","s3"));
+
     /**
      * @serial include
      */
