@@ -31,6 +31,8 @@ import java.util.function.BiFunction;
 import java.io.IOException;
 
 /**
+ * 好的博客介绍：https://blog.csdn.net/caoxiaohong1005/article/details/79909083
+ *
  * <p>Hash table and linked list implementation of the <tt>Map</tt> interface,
  * with predictable iteration order.  This implementation differs from
  * <tt>HashMap</tt> in that it maintains a doubly-linked list running through
@@ -190,6 +192,9 @@ public class LinkedHashMap<K,V>
      * HashMap.Node subclass for normal LinkedHashMap entries.
      */
     static class Entry<K,V> extends HashMap.Node<K,V> {
+        // next是用于维护HashMap指定table位置上连接的Entry的顺序的
+        // before、After是用于维护Entry插入的先后顺序的(为了维护双向链表)
+        // 当调用迭代器的时候不再使用HashMap的的迭代器，而是自己写迭代器来遍历这个双向链表即可
         Entry<K,V> before, after;
         Entry(int hash, K key, V value, Node<K,V> next) {
             super(hash, key, value, next);
@@ -211,7 +216,9 @@ public class LinkedHashMap<K,V>
     /**
      * The iteration ordering method for this linked hash map: <tt>true</tt>
      * for access-order, <tt>false</tt> for insertion-order.
-     *
+     * 默认情况下,是按插入顺序维护链表。
+     * 指定accessOrder参数为 true，即可让它按访问顺序维护链表
+     * 两种情况都是最新插入/访问的放在尾部
      * @serial
      */
     final boolean accessOrder;
@@ -219,6 +226,7 @@ public class LinkedHashMap<K,V>
     // internal utilities
 
     // link at the end of list
+    // 此方法很关键.节点接在双向链表的尾部
     private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
         LinkedHashMap.Entry<K,V> last = tail;
         tail = p;
@@ -245,7 +253,9 @@ public class LinkedHashMap<K,V>
             a.before = dst;
     }
 
-    // overrides of HashMap hook methods
+    // overrides of HashMap hook methods 多态
+
+    // 钩子方法
 
     void reinitialize() {
         super.reinitialize();
@@ -255,6 +265,7 @@ public class LinkedHashMap<K,V>
     Node<K,V> newNode(int hash, K key, V value, Node<K,V> e) {
         LinkedHashMap.Entry<K,V> p =
             new LinkedHashMap.Entry<K,V>(hash, key, value, e);
+        // 构建顺序，新插入节点接在双向链表的尾部
         linkNodeLast(p);
         return p;
     }
@@ -294,28 +305,36 @@ public class LinkedHashMap<K,V>
             a.before = b;
     }
 
+    // put新元素时，[删除]双链表【头部】节点
     void afterNodeInsertion(boolean evict) { // possibly remove eldest
         LinkedHashMap.Entry<K,V> first;
+        // 关键调用removeEldestEntry方法
         if (evict && (first = head) != null && removeEldestEntry(first)) {
             K key = first.key;
             removeNode(hash(key), key, null, false, true);
         }
     }
 
+    // 会将当前被访问到的节点e，[移动]至内部的双向链表的尾部
     void afterNodeAccess(Node<K,V> e) { // move node to last
         LinkedHashMap.Entry<K,V> last;
+        // 关键点accessOrder是true
         if (accessOrder && (last = tail) != e) {
             LinkedHashMap.Entry<K,V> p =
                 (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
+            //p现在是尾节点， 后置节点一定是null
             p.after = null;
+            // 构建调整节点p的前驱节点b的最新关系
             if (b == null)
                 head = a;
             else
                 b.after = a;
+            // 构建调整节点p的后继节点a的最新关系
             if (a != null)
                 a.before = b;
             else
                 last = b;
+            // 最终构建调整节点p的前驱后继关系
             if (last == null)
                 head = p;
             else {
@@ -505,6 +524,11 @@ public class LinkedHashMap<K,V>
      * @return   <tt>true</tt> if the eldest entry should be removed
      *           from the map; <tt>false</tt> if it should be retained.
      */
+//最近最少使用算法（LRU）
+//    通过覆写，可以实现：当添加新的映射到map中时,强制自动移除过期的映射.
+//    过期数据：
+//    双向链表按插入entry排序，则为最早插入双向链表的entry。
+//    双向链表按访问entry排序，则为最近最少访问的entry。
     protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
         return false;
     }
@@ -632,6 +656,7 @@ public class LinkedHashMap<K,V>
      */
     public Set<Map.Entry<K,V>> entrySet() {
         Set<Map.Entry<K,V>> es;
+        // 返回的是自己内部的LinkedEntrySet
         return (es = entrySet) == null ? (entrySet = new LinkedEntrySet()) : es;
     }
 
@@ -667,6 +692,7 @@ public class LinkedHashMap<K,V>
             if (action == null)
                 throw new NullPointerException();
             int mc = modCount;
+            // 遍历已构建的双向链表
             for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after)
                 action.accept(e);
             if (modCount != mc)

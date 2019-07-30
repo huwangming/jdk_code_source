@@ -37,6 +37,8 @@ import java.util.function.Function;
 import sun.misc.SharedSecrets;
 
 /**
+ * 好的博客介绍：https://tech.meituan.com/2016/06/24/java-hashmap.html
+ *
  * Hash table based implementation of the <tt>Map</tt> interface.  This
  * implementation provides all of the optional map operations, and permits
  * <tt>null</tt> values and the <tt>null</tt> key.  (The <tt>HashMap</tt>
@@ -277,10 +279,10 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
      */
     static class Node<K,V> implements Map.Entry<K,V> {
-        final int hash;
+        final int hash; // 定位数组索引位置
         final K key;
         V value;
-        Node<K,V> next;
+        Node<K,V> next; // 采用了链地址法,解决冲突 （还有开放地址法解决）
 
         Node(int hash, K key, V value, Node<K,V> next) {
             this.hash = hash;
@@ -335,6 +337,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * never be used in index calculations because of table bounds.
      */
     static final int hash(Object key) {
+        // h = key.hashCode() 为第一步 取hashCode值
+        // h ^ (h >>> 16)  为第二步 高位参与运算
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
@@ -375,6 +379,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /**
      * Returns a power of two size for the given target capacity.
      */
+    //返回值是大于等于给定参数initialCapacity最小的2的幂次方的数值。
     static final int tableSizeFor(int cap) {
         int n = cap - 1;
         n |= n >>> 1;
@@ -393,7 +398,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * (We also tolerate length zero in some operations to allow
      * bootstrapping mechanics that are currently not needed.)
      */
-    transient Node<K,V>[] table;
+    transient Node<K,V>[] table; //哈希桶数组
 
     /**
      * Holds cached entrySet(). Note that AbstractMap fields are used
@@ -417,7 +422,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * The next size value at which to resize (capacity * load factor).
-     *
+     * // 所能容纳的key-value对极限
      * @serial
      */
     // (The javadoc description is true upon serialization.
@@ -622,28 +627,40 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @param evict if false, the table is in creation mode.
      * @return previous value, or null if none
      */
+    // 当length总是2的n次方时，h& (length-1)运算等价于对length取模，也就是h%length
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
+
         Node<K,V>[] tab; Node<K,V> p; int n, i;
+
+        // 步骤①：tab为空则创建
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+        // 步骤②：计算index，并对null做处理
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
         else {
+
             Node<K,V> e; K k;
+
+            // 步骤③：节点key存在，直接覆盖value
             if (p.hash == hash &&
                 ((k = p.key) == key || (key != null && key.equals(k))))
                 e = p;
+            // 步骤④：判断该链为红黑树
             else if (p instanceof TreeNode)
                 e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            // 步骤⑤：该链为链表
             else {
                 for (int binCount = 0; ; ++binCount) {
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
+                        //链表长度大于8转换为红黑树进行处理
                         if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
                             treeifyBin(tab, hash);
                         break;
                     }
+                    // key已经存在直接覆盖value
                     if (e.hash == hash &&
                         ((k = e.key) == key || (key != null && key.equals(k))))
                         break;
@@ -654,13 +671,15 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 V oldValue = e.value;
                 if (!onlyIfAbsent || oldValue == null)
                     e.value = value;
-                afterNodeAccess(e);
+                afterNodeAccess(e); // 留给LinkedHashMap的回调方法
                 return oldValue;
             }
         }
         ++modCount;
+        // 步骤⑥：超过最大容量 就扩容
         if (++size > threshold)
             resize();
+        // 回调方法，是否去[删除]双链表头部节点
         afterNodeInsertion(evict);
         return null;
     }
@@ -1733,7 +1752,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /* ------------------------------------------------------------ */
     // LinkedHashMap support
 
-
+    // 整一些钩子方法。让子类重写
     /*
      * The following package-protected methods are designed to be
      * overridden by LinkedHashMap, but not by any other subclass.
@@ -1776,6 +1795,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     // Callbacks to allow LinkedHashMap post-actions
+    // Callbacks
     void afterNodeAccess(Node<K,V> p) { }
     void afterNodeInsertion(boolean evict) { }
     void afterNodeRemoval(Node<K,V> p) { }
