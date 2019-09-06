@@ -45,6 +45,9 @@ package java.lang.ref;
  * @since    1.2
  */
 
+// 前提：当一个对象不具有强引用指向它，而仅仅只有弱引用指向它，则这个对象等到下一次GC时刻，会被立即回收
+
+// WeakReference<T> 提供弱引用某对象的功能，当一个对象仅仅被WeakReference引用时，在下个垃圾收集周期时候该对象就会被回收。
 public class WeakReference<T> extends Reference<T> {
 
     /**

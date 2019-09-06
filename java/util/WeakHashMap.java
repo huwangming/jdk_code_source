@@ -710,7 +710,7 @@ public class WeakHashMap<K,V>
         Entry(Object key, V value,
               ReferenceQueue<Object> queue,
               int hash, Entry<K,V> next) {
-            super(key, queue);
+            super(key, queue); // 持有key的弱引用，若key只有map本身引用时，就会将key（为null）对应的Entry清除掉
             this.value = value;
             this.hash  = hash;
             this.next  = next;

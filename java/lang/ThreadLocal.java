@@ -317,7 +317,7 @@ public class ThreadLocal<T> {
          */
 
         // 整个对象持有ThreadLocal对象的弱引用
-        // 如果ThreadLocal对象是在线程生命周期内创建（new）,不具有其他强应用，GC时会清除
+        // 如果ThreadLocal对象是在线程生命周期内创建（new）,不具有其他强引用，GC时会清除
         static class Entry extends WeakReference<ThreadLocal<?>> {
             /** The value associated with this ThreadLocal. */
             Object value;
@@ -508,15 +508,15 @@ public class ThreadLocal<T> {
 
         /*
         ---------------ThreadLocal中的内存泄漏原因--------------
-        如果ThreadLocal被设置为null后，而且没有任何强引用指向它，根据垃圾回收的可达性分析算法，ThreadLocal将会被回收。
-        这样一来，ThreadLocalMap中就会含有key为null的Entry，而且ThreadLocalMap是在Thread中的，只要线程迟迟不结束，这些无法访问到的value会形成内存泄漏。
+        如果ThreadLocal被设置为null后，而且没有任何【强引用】指向它，根据垃圾回收的可达性分析算法，ThreadLocal将会被回收。
+        这样一来，ThreadLocalMap中就会含有key为【null】的Entry，而且ThreadLocalMap是在Thread中的，只要线程迟迟不结束，这些无法访问到的value会形成内存泄漏。
         为了解决这个问题，ThreadLocalMap中的getEntry()、set()和remove()函数都会清理key为null的Entry
-        ---------------ThreadLocalMap的key是一个弱引用原因--------------
+        ---------------ThreadLocalMap的key是一个【弱引用】原因--------------
         ThreadLocal threadLocal = new ThreadLocal();
         //进行一些逻辑后
         threadLocal = null;
-        强引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的强引用，如果不手动删除，那么ThreadLocal将不会回收，产生内存泄漏。
-        弱引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的弱引用，即便不手动删除，ThreadLocal仍会被回收。
+        强引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的【强引用】，则ThreadLocal将不会被回收（还有强引用），继而产生内存泄漏。
+        弱引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的【弱引用】，即便不手动删除，ThreadLocal仍会被回收。
         */
 
         /**
@@ -530,6 +530,7 @@ public class ThreadLocal<T> {
                  e != null;
                  e = tab[i = nextIndex(i, len)]) {
                 if (e.get() == key) {
+                    // Entry的k-v的引用都置为null，再删除当前entry-Entry[index]
                     e.clear();
                     expungeStaleEntry(i);
                     return;
