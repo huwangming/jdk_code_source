@@ -65,6 +65,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
         } catch (Exception ex) { throw new Error(ex); }
     }
 
+    // 提供可见性与有序性
     private volatile int value;
 
     /**
@@ -130,6 +131,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      * the actual value was not equal to the expected value.
      */
     public final boolean compareAndSet(int expect, int update) {
+        // 硬件支持的CAS操作，可以保证原子性
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
 
@@ -182,6 +184,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
      *
      * @return the updated value
      */
+    // getAndAddInt 底层代码是自旋的
     public final int incrementAndGet() {
         return unsafe.getAndAddInt(this, valueOffset, 1) + 1;
     }
