@@ -61,7 +61,7 @@ package java.util;
  */
 public class Observable {
     private boolean changed = false;
-    private Vector<Observer> obs;
+    private Vector<Observer> obs; //注册的观察者，注意新增、删除时加锁同步
 
     /** Construct an Observable with zero Observers. */
 
@@ -111,6 +111,7 @@ public class Observable {
      * @see     java.util.Observable#hasChanged()
      * @see     java.util.Observer#update(java.util.Observable, java.lang.Object)
      */
+    // 通知
     public void notifyObservers() {
         notifyObservers(null);
     }

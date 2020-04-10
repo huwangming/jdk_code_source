@@ -42,7 +42,7 @@ import sun.misc.SharedSecrets;
  * Hash table based implementation of the <tt>Map</tt> interface.  This
  * implementation provides all of the optional map operations, and permits
  * <tt>null</tt> values and the <tt>null</tt> key.  (The <tt>HashMap</tt>
- * class is roughly equivalent to <tt>Hashtable</tt>, except that it is
+ * class is roughly equivalent to <tt>Hashtable</tt>, except that it is //与Hashtable区别
  * unsynchronized and permits nulls.)  This class makes no guarantees as to
  * the order of the map; in particular, it does not guarantee that the order
  * will remain constant over time.
@@ -56,6 +56,7 @@ import sun.misc.SharedSecrets;
  * capacity too high (or the load factor too low) if iteration performance is
  * important.
  *
+ * 性能影响因素-初始容量及负载因子-重hash次数
  * <p>An instance of <tt>HashMap</tt> has two parameters that affect its
  * performance: <i>initial capacity</i> and <i>load factor</i>.  The
  * <i>capacity</i> is the number of buckets in the hash table, and the initial
@@ -102,6 +103,7 @@ import sun.misc.SharedSecrets;
  * unsynchronized access to the map:<pre>
  *   Map m = Collections.synchronizedMap(new HashMap(...));</pre>
  *
+ * fail-fast 机制
  * <p>The iterators returned by all of this class's "collection view methods"
  * are <i>fail-fast</i>: if the map is structurally modified at any time after
  * the iterator is created, in any way except through the iterator's own
