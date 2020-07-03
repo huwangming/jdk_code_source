@@ -214,8 +214,10 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         }
     }
 
+    // 而 ReentrantLock 的构造方法中允许设置 true/false 来实现公平、非公平锁，
+    // 如果设置为 true ，则线程获取锁要遵循"先来后到"的规则，每次都会构造一个线程 Node ，然后到双向链表的"尾巴"后面排队，等待前面的 Node 释放锁资源。
     /**
-     * Sync object for fair locks
+     * Sync object for fair locks //
      */
     static final class FairSync extends Sync {
         private static final long serialVersionUID = -3000897897090466540L;

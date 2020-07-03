@@ -134,7 +134,7 @@ public class AtomicInteger extends Number implements java.io.Serializable {
         // 硬件支持的CAS操作，可以保证原子性
         return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
     }
-
+//    Java并发编程要保证线程安全，需要保证原子性、可视性和有序性；CAS操作可以保证原子性，而volatile可以保证可视性和一定程度的有序性；
     /**
      * Atomically sets the value to the given updated value
      * if the current value {@code ==} the expected value.

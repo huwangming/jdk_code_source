@@ -450,7 +450,7 @@ public interface Condition {
     boolean awaitUntil(Date deadline) throws InterruptedException;
 
     /**
-     * Wakes up one waiting thread.
+     * Wakes up one waiting thread. //重要方法
      *
      * <p>If any threads are waiting on this condition then one
      * is selected for waking up. That thread must then re-acquire the

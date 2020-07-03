@@ -283,7 +283,7 @@ import sun.misc.Unsafe;
  *   }
  * }}</pre>
  *
- * @since 1.5
+ * @since 1.5                  //AQS 是基于 volitale 和 CAS 实现的
  * @author Doug Lea
  */
 public abstract class AbstractQueuedSynchronizer
@@ -379,10 +379,11 @@ public abstract class AbstractQueuedSynchronizer
      */
     static final class Node {
         /** Marker to indicate a node is waiting in shared mode */
-        static final Node SHARED = new Node();
+        static final Node SHARED = new Node(); //共享
         /** Marker to indicate a node is waiting in exclusive mode */
-        static final Node EXCLUSIVE = null;
+        static final Node EXCLUSIVE = null; // 排它
 
+        /*-------------4种waitStatus-----------------*/
         /** waitStatus value to indicate thread has cancelled */
         static final int CANCELLED =  1;
         /** waitStatus value to indicate successor's thread needs unparking */
