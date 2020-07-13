@@ -45,8 +45,8 @@ package java.util;
  * @author  Jonathan Payne
  * @since   JDK1.0
  */
-public
-class Stack<E> extends Vector<E> {
+//基于 Vector 实现，支持 LIFO，底层数组
+public class Stack<E> extends Vector<E> {
     /**
      * Creates an empty Stack.
      */
