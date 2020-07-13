@@ -223,7 +223,7 @@ public class ArrayList<E> extends AbstractList<E>
     private static int calculateCapacity(Object[] elementData, int minCapacity) {
         if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
             // 无指定capacity，则第一次add时，初始默认容量10，
-            return Math.max(DEFAULT_CAPACITY, minCapacity);
+            return Math.max(DEFAULT_CAPACITY, minCapacity);//max(10,1)
         }
         return minCapacity;
     }
@@ -233,7 +233,7 @@ public class ArrayList<E> extends AbstractList<E>
     }
 
     private void ensureExplicitCapacity(int minCapacity) {
-        modCount++;
+        modCount++; // 修改计数
 
         // overflow-conscious code
         if (minCapacity - elementData.length > 0)

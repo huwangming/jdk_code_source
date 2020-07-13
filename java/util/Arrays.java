@@ -3212,7 +3212,7 @@ public class Arrays {
             : (T[]) Array.newInstance(newType.getComponentType(), newLength);
         System.arraycopy(original, 0, copy, 0,
                          Math.min(original.length, newLength));
-        return copy;
+        return copy; // new对象返回
     }
 
     /**
