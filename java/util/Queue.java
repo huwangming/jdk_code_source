@@ -141,6 +141,7 @@ package java.util;
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
  */
+// Queue 队列 FlFO
 public interface Queue<E> extends Collection<E> {
     /**
      * Inserts the specified element into this queue if it is possible to do so
@@ -210,7 +211,8 @@ public interface Queue<E> extends Collection<E> {
      */
     E element();
 
-    // element() 和 peek() 用于在队列的头部查询元素。与 remove() 方法类似，在队列为空时， element() 抛出一个异常，而 peek() 返回 null。
+    // element() 和 peek() 用于在队列的头部查询元素。
+    //与 remove() 方法类似，在队列为空时， element() 抛出一个异常，而 peek() 返回 null。
     /**
      * Retrieves, but does not remove, the head of this queue,
      * or returns {@code null} if this queue is empty.

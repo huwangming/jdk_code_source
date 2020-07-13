@@ -565,7 +565,7 @@ public class LinkedList<E>
      */
     Node<E> node(int index) {
         // assert isElementIndex(index);
-        // 双链表的好处显现
+        // 双链表的好处显现，判断离头尾的距离，查找优化，
         if (index < (size >> 1)) {
             // 从前面检索
             Node<E> x = first;
@@ -969,7 +969,7 @@ public class LinkedList<E>
                 throw new ConcurrentModificationException();
         }
     }
-
+    // 双向链表结构
     private static class Node<E> {
         E item;
         Node<E> next;

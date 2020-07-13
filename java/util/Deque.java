@@ -37,7 +37,7 @@ package java.util;
 
 /**
  * A linear collection that supports element insertion and removal at
- * both ends.  The name <i>deque</i> is short for "double ended queue"   //名称deque 是“double ended queue（双端队列）”的缩写，通常读为“deck”。
+ * both ends.  The name <i>deque</i> is short for "double ended queue"
  * and is usually pronounced "deck".  Most {@code Deque}
  * implementations place no fixed limits on the number of elements
  * they may contain, but this interface supports capacity-restricted
@@ -190,8 +190,8 @@ package java.util;
  * @since  1.6
  * @param <E> the type of elements held in this collection
  */
-
-// 此接口定义在双端队列两端访问元素的方法。
+//名称deque 是“double ended queue（双端队列）”的缩写，通常读为“deck”。
+// 此接口定义在[双端队列]两端访问元素的方法。
 // 提供插入、移除和检查元素的方法。
 // 每种方法都存在两种形式：一种形式在操作失败时抛出异常，另一种形式返回一个特殊值（null 或false，具体取决于操作）。
 public interface Deque<E> extends Queue<E> {
