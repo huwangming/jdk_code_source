@@ -83,6 +83,8 @@ import java.util.function.UnaryOperator;
  * @see LinkedList
  * @since   JDK1.0
  */
+//基于 synchronized(方法级别add/remove上加锁) 实现的线程安全的 ArrayList，
+//但在插入元素时容量扩充的机制和 ArrayList 稍有不同，并可通过传入 capacityIncrement 来控制容量的扩充。
 public class Vector<E>
     extends AbstractList<E>
     implements List<E>, RandomAccess, Cloneable, java.io.Serializable
