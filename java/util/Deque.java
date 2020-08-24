@@ -385,6 +385,7 @@ public interface Deque<E> extends Queue<E> {
     boolean removeLastOccurrence(Object o);
 
     // 以上为两端操作的基本方法(增、删、查)
+    // add/offer,remove,get/poll/peek
     // 以下为单队列queue方法
     // 两者结合可以实现后进先出的栈功能
 

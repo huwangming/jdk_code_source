@@ -131,7 +131,8 @@ public class ArrayList<E> extends AbstractList<E>
      * The capacity of the ArrayList is the length of this array buffer. Any
      * empty ArrayList with elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA
      * will be expanded to DEFAULT_CAPACITY when the first element is added.
-     */   // 无指定capacity，则第一次add时，初始默认容量10，
+     */
+    // 无指定capacity，则第一次add时，初始默认容量10，
     transient Object[] elementData; // non-private to simplify nested class access
 
     /**
@@ -222,7 +223,7 @@ public class ArrayList<E> extends AbstractList<E>
 
     private static int calculateCapacity(Object[] elementData, int minCapacity) {
         if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-            // 无指定capacity，则第一次add时，初始默认容量10，
+            // 无指定capacity，则第一次--add----时，初始默认容量10，
             return Math.max(DEFAULT_CAPACITY, minCapacity);//max(10,1)
         }
         return minCapacity;
@@ -413,6 +414,7 @@ public class ArrayList<E> extends AbstractList<E>
             // Make a new array of a's runtime type, but my contents:
             // 小于size,则new一个,引用变了
             return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+
         System.arraycopy(elementData, 0, a, 0, size);
         if (a.length > size)
             a[size] = null;

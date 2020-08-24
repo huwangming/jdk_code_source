@@ -629,7 +629,6 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * @param evict if false, the table is in creation mode.
      * @return previous value, or null if none
      */
-    // 当length总是2的n次方时，h& (length-1)运算等价于对length取模，也就是h%length
     final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
                    boolean evict) {
 
@@ -639,6 +638,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
         // 步骤②：计算index，并对null做处理
+        // 当length总是2的n次方时，h& (length-1)运算等价于对length取模，也就是h%length
         if ((p = tab[i = (n - 1) & hash]) == null)
             tab[i] = newNode(hash, key, value, null);
         else {

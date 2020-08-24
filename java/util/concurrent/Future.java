@@ -116,6 +116,7 @@ public interface Future<V> {
      * typically because it has already completed normally;
      * {@code true} otherwise
      */
+    // 此方法不能把正在执行的线程（running）kill
     boolean cancel(boolean mayInterruptIfRunning);
 
     /**

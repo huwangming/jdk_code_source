@@ -841,6 +841,7 @@ class Thread implements Runnable {
      *       <a href="{@docRoot}/../technotes/guides/concurrency/threadPrimitiveDeprecation.html">Why
      *       are Thread.stop, Thread.suspend and Thread.resume Deprecated?</a>.
      */
+    // 这个方法虽然可以kill执行的线程，但有各种问题，如线程安全
     @Deprecated
     public final void stop() {
         SecurityManager security = System.getSecurityManager();
@@ -894,19 +895,19 @@ class Thread implements Runnable {
      * #join(long, int)}, {@link #sleep(long)}, or {@link #sleep(long, int)},
      * methods of this class, then its interrupt status will be cleared and it
      * will receive an {@link InterruptedException}.
-     *
+     * 适用场景1
      * <p> If this thread is blocked in an I/O operation upon an {@link
      * java.nio.channels.InterruptibleChannel InterruptibleChannel}
      * then the channel will be closed, the thread's interrupt
      * status will be set, and the thread will receive a {@link
      * java.nio.channels.ClosedByInterruptException}.
-     *
+     * 适用场景2
      * <p> If this thread is blocked in a {@link java.nio.channels.Selector}
      * then the thread's interrupt status will be set and it will return
      * immediately from the selection operation, possibly with a non-zero
      * value, just as if the selector's {@link
      * java.nio.channels.Selector#wakeup wakeup} method were invoked.
-     *
+     * 适用场景3
      * <p> If none of the previous conditions hold then this thread's interrupt
      * status will be set. </p>
      *
@@ -918,6 +919,9 @@ class Thread implements Runnable {
      * @revised 6.0
      * @spec JSR-51
      */
+
+    // 并不会中断线程的运行，它的作用仅仅是为线程设定一个状态而已，即标明线程是中断状态，这样线程的调度机制或我们的代码逻辑就可以通过判断这个状态做一些处理，
+    //比如sleep()方法会抛出异常，或是我们根据isInterrupted()方法判断线程是否处于中断状态，然后做相关的逻辑处理。
     public void interrupt() {
         if (this != Thread.currentThread())
             checkAccess();
@@ -925,7 +929,7 @@ class Thread implements Runnable {
         synchronized (blockerLock) {
             Interruptible b = blocker;
             if (b != null) {
-                interrupt0();           // Just to set the interrupt flag
+                interrupt0();           // Just to set the interrupt flag  仅仅设置状态
                 b.interrupt(this);
                 return;
             }
@@ -940,7 +944,7 @@ class Thread implements Runnable {
      * second call would return false (unless the current thread were
      * interrupted again, after the first call had cleared its interrupted
      * status and before the second call had examined it).
-     *
+     *-------静态方法--中断状态将被清除
      * <p>A thread interruption ignored because a thread was not alive
      * at the time of the interrupt will be reflected by this method
      * returning false.
@@ -957,7 +961,7 @@ class Thread implements Runnable {
     /**
      * Tests whether this thread has been interrupted.  The <i>interrupted
      * status</i> of the thread is unaffected by this method.
-     *
+     *-----仅仅判断中断状态
      * <p>A thread interruption ignored because a thread was not alive
      * at the time of the interrupt will be reflected by this method
      * returning false.

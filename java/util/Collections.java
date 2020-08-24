@@ -2027,6 +2027,8 @@ public class Collections {
             synchronized (mutex) {return c.toArray(a);}
         }
 
+        // 这是一个雷，没有实现同步功能，
+        // 采用forEach去遍历
         public Iterator<E> iterator() {
             return c.iterator(); // Must be manually synched by user!
         }

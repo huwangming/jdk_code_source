@@ -99,6 +99,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * @since 1.6
      */
     protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+        // 返回的Future实际都是FutureTask类型
         return new FutureTask<T>(callable);
     }
 

@@ -171,6 +171,7 @@ public class FutureTask<V> implements RunnableFuture<V> {
                 try {
                     Thread t = runner;
                     if (t != null)
+                        // interrupt只设置状态，不是kill线程
                         t.interrupt();
                 } finally { // final state
                     UNSAFE.putOrderedInt(this, stateOffset, INTERRUPTED);
