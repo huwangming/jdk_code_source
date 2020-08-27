@@ -161,6 +161,7 @@ public class ThreadLocal<T> {
         Thread t = Thread.currentThread();
         ThreadLocalMap map = getMap(t);
         if (map != null) {
+            // k为当前ThreadLocal即this
             ThreadLocalMap.Entry e = map.getEntry(this);
             if (e != null) {
                 @SuppressWarnings("unchecked")
@@ -338,7 +339,7 @@ public class ThreadLocal<T> {
          * table.length MUST always be a power of two.
          */
         // 和HashMap底层结构相似，上层都是数组，不同在于数组元素Entry是ThreadLocal对象的弱引用
-        // key 是不同ThreadLocal实例, 即每个线程可以与多个threadLocal 绑定
+        // key 是不同ThreadLocal实例, 即每个线程可以与多个threadLocal 绑定---------重点理解
         // 采用线性探测法实现的HashMap
         private Entry[] table;
 
@@ -379,6 +380,7 @@ public class ThreadLocal<T> {
          * one when we have at least one entry to put in it.
          */
         ThreadLocalMap(ThreadLocal<?> firstKey, Object firstValue) {
+            // 与HashMap put一样的
             table = new Entry[INITIAL_CAPACITY];
             int i = firstKey.threadLocalHashCode & (INITIAL_CAPACITY - 1);
             table[i] = new Entry(firstKey, firstValue);
@@ -484,9 +486,7 @@ public class ThreadLocal<T> {
             int len = tab.length;
             int i = key.threadLocalHashCode & (len-1);
 
-            for (Entry e = tab[i];
-                 e != null;
-                 e = tab[i = nextIndex(i, len)]) {
+            for (Entry e = tab[i]; e != null; e = tab[i = nextIndex(i, len)]) {
                 ThreadLocal<?> k = e.get();
 
                 if (k == key) {
@@ -519,6 +519,14 @@ public class ThreadLocal<T> {
         弱引用key：ThreadLocal被设置为null，由于ThreadLocalMap持有ThreadLocal的【弱引用】，即便不手动删除，ThreadLocal仍会被回收。
         */
 
+        // 搞懂内存泄露问题，关键理清对象直接的引用关系，ThreadLocal对象与ThreadLocalMap对象，Entry[]与Entry[i]{k,v}
+
+        /*
+        ThreadLocal归纳下来2类用途：
+        保存线程上下文信息，在任意需要的地方可以获取。---spring WebApplicationContext@RequestScope@SessionScope ---线程日志收集、耗时计算
+        线程安全的，避免某些情况需要考虑线程安全必须同步带来的性能损失。------数据库的链接对象 Connection，
+        */
+
         /**
          * Remove the entry for key.
          */
@@ -530,7 +538,7 @@ public class ThreadLocal<T> {
                  e != null;
                  e = tab[i = nextIndex(i, len)]) {
                 if (e.get() == key) {
-                    // Entry的k-v的引用都置为null，再删除当前entry-Entry[index]
+                    // Entry的k引用置为null，再v=null，再删除当前entry-Entry[index]
                     e.clear();
                     expungeStaleEntry(i);
                     return;
@@ -553,8 +561,9 @@ public class ThreadLocal<T> {
          * @param  staleSlot index of the first stale entry encountered while
          *         searching for key.
          */
+        // 处理ThreadLocal引用为nulL(可能已被GC回收),
         private void replaceStaleEntry(ThreadLocal<?> key, Object value,
-                                       int staleSlot) {
+                                       int staleSlot) { //污染槽位
             Entry[] tab = table;
             int len = tab.length;
             Entry e;
@@ -634,9 +643,7 @@ public class ThreadLocal<T> {
             // Rehash until we encounter null -----重hash
             Entry e;
             int i;
-            for (i = nextIndex(staleSlot, len);
-                 (e = tab[i]) != null;
-                 i = nextIndex(i, len)) {
+            for (i = nextIndex(staleSlot, len); (e = tab[i]) != null; i = nextIndex(i, len)) {
                 ThreadLocal<?> k = e.get();
                 if (k == null) {
                     e.value = null;

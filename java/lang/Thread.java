@@ -183,12 +183,13 @@ class Thread implements Runnable {
     // 打个比方，每个线程都有其固有属性，如名字-name、父母-group
     // 而threadLocals 是外界给其的标签，具有不确定性
     ThreadLocal.ThreadLocalMap threadLocals = null;
+    // 特别要关注ThreadLocalMap结构，<k,v> -> <ThreadLocal,v>
 
     /*
      * InheritableThreadLocal values pertaining to this thread. This map is
      * maintained by the InheritableThreadLocal class.
      */
-    // 父子线程传递
+    // 父子线程传递--其实就是使用新的对象（是inheritableThreadLocals而不是threadLocals了）进行操作
     // InheritableThreadLocal对象 getMap 是拿的这个变量值
     ThreadLocal.ThreadLocalMap inheritableThreadLocals = null;
 
