@@ -93,6 +93,7 @@ import java.util.function.Consumer;
  * @author Doug Lea
  * @param <E> the type of elements held in this collection
  */
+// 是对CopyOnWriteArrayList的简单封装实现，没啥可看的
 public class CopyOnWriteArraySet<E> extends AbstractSet<E>
         implements java.io.Serializable {
     private static final long serialVersionUID = 5457747651344034263L;
@@ -272,6 +273,7 @@ public class CopyOnWriteArraySet<E> extends AbstractSet<E>
      * @throws NullPointerException if the specified collection is null
      * @see #contains(Object)
      */
+    // 底层是对CopyOnWriteArrayList 的遍历，区别HashSet(O(1))
     public boolean containsAll(Collection<?> c) {
         return al.containsAll(c);
     }

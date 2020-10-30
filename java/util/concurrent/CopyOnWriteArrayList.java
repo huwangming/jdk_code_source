@@ -93,11 +93,15 @@ public class CopyOnWriteArrayList<E>
     implements List<E>, RandomAccess, Cloneable, java.io.Serializable {
     private static final long serialVersionUID = 8673264195747942595L;
 
-    /** The lock protecting all mutators */
-    final transient ReentrantLock lock = new ReentrantLock();
+    /**
+     * The lock protecting all mutators
+     */
+    final transient ReentrantLock lock = new ReentrantLock(); // 可重入锁
 
-    /** The array, accessed only via getArray/setArray. */
-    private transient volatile Object[] array;
+    /**
+     * The array, accessed only via getArray/setArray.
+     */
+    private transient volatile Object[] array; // 满足可见性
 
     /**
      * Gets the array.  Non-private so as to also be accessible
@@ -111,7 +115,7 @@ public class CopyOnWriteArrayList<E>
      * Sets the array.
      */
     final void setArray(Object[] a) {
-        array = a;
+        array = a; // 引用改变
     }
 
     /**
@@ -433,18 +437,24 @@ public class CopyOnWriteArrayList<E>
      */
     public boolean add(E e) {
         final ReentrantLock lock = this.lock;
-        lock.lock();
+        lock.lock(); // add(更新操作)进行加锁操作，读get没有加锁
         try {
             Object[] elements = getArray();
             int len = elements.length;
+            // copy new一份当做副本
             Object[] newElements = Arrays.copyOf(elements, len + 1);
+            // 在副本上修改
             newElements[len] = e;
+            // 最后引用更新
             setArray(newElements);
             return true;
         } finally {
             lock.unlock();
         }
     }
+
+    // 考虑锁消耗：适用读(add)操作远远大于写(remove、put)操作的场景中使用(读的时候是不需要加锁的，直接获取，删除和增加是需要加锁的，读多写少)
+    // 考虑内存：因为有copy，适用小内存的场景，即集合元素少
 
     /**
      * Inserts the specified element at the specified position in this
@@ -1128,6 +1138,7 @@ public class CopyOnWriteArrayList<E>
             (getArray(), Spliterator.IMMUTABLE | Spliterator.ORDERED);
     }
 
+    // 使用iterator，在开始创建该对象，进而遍历过程中，原始数据更新操作不会check到
     static final class COWIterator<E> implements ListIterator<E> {
         /** Snapshot of the array */
         private final Object[] snapshot;

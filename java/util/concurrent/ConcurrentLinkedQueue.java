@@ -45,6 +45,9 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
 
+// ConcurrentLinkedQueue是线程安全的无界非阻塞队列，用CAS实现
+//内部采用单向链表方式实现，首尾为2个volatile类型的Node节点用来存放队列的首尾节点。
+
 /**
  * An unbounded thread-safe {@linkplain Queue queue} based on linked nodes.
  * This queue orders elements FIFO (first-in-first-out).
@@ -327,7 +330,7 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
         checkNotNull(e);
         final Node<E> newNode = new Node<E>(e);
 
-        for (Node<E> t = tail, p = t;;) {
+        for (Node<E> t = tail, p = t;;) { // 死循环，内部去跳出结束执行
             Node<E> q = p.next;
             if (q == null) {
                 // p is last node
@@ -340,6 +343,7 @@ public class ConcurrentLinkedQueue<E> extends AbstractQueue<E>
                     return true;
                 }
                 // Lost CAS race to another thread; re-read next
+                // 自旋+CAS
             }
             else if (p == q)
                 // We have fallen off list.  If tail is unchanged, it
